@@ -29,8 +29,8 @@ func main() {
 	if port == "" {
 		log.Fatal("$PORT must be set")
 	}
-	frontendDistPath := os.Getenv("FRONTEND_PATH")
-	if frontendDistPath == "" {
+	distPath := os.Getenv("FRONTEND_PATH")
+	if distPath == "" {
 		log.Fatal("$FRONTEND_PATH must be set")
 	}
 
@@ -89,12 +89,12 @@ func main() {
 
 	// Production
 	} else {
-		staticHandler := http.FileServer(http.Dir(frontendDistPath))
+		staticHandler := http.FileServer(http.Dir(distPath))
 		router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-			filePath := frontendDistPath + r.URL.Path
+			filePath := distPath + r.URL.Path
 			_, err := os.Stat(filePath)
 			if os.IsNotExist(err) {
-				http.ServeFile(w, r, frontendDistPath+"/index.html")
+				http.ServeFile(w, r, distPath+"/index.html")
 				return
 			}
 			staticHandler.ServeHTTP(w, r)
