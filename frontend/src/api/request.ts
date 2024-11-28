@@ -11,7 +11,7 @@ export default async function request<T extends keyof Endpoints>(
     headers: {
       'Content-Type': 'application/json',
     },
-    body: method !== 'GET' ? JSON.stringify(body) : undefined,
+    body: method !== 'GET' && body ? JSON.stringify(body) : undefined,
   })
 
   if (!response.ok) {
@@ -25,7 +25,7 @@ type RequestOptions = {
   method?: 'POST' | 'GET' | 'PUT' | 'DELETE'
 } & (
   | {
-      body: Record<string, unknown>
+      body?: Record<string, unknown>
       params?: never
     }
   | {
@@ -40,4 +40,7 @@ export type Endpoints = {
     playerHealth: number
     isRunning: boolean
   }
+  '/api/game/addTower': {}
+  '/api/game/start': {}
+  '/api/game/reset': {}
 }

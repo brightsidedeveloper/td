@@ -57,6 +57,9 @@ func main() {
 
 	// V1 Routes
 	gameRouter.Get("/state", c.State)
+	gameRouter.Post("/start", c.StartGame)
+	gameRouter.Post("/addTower", c.AddTower)
+	gameRouter.Post("/reset", c.Reset)
 	gameRouter.Get("/ws", ws.HandleWebSocket)
 
 	// Mount the v1Router under /v1

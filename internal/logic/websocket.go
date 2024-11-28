@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -41,6 +42,7 @@ func (gws *GameWebSocket) HandleWebSocket(w http.ResponseWriter, r *http.Request
 			fmt.Printf("Error writing JSON: %v\n", err)
 			break
 		}
+		time.Sleep(500 * time.Millisecond)
 	}
 }
 
