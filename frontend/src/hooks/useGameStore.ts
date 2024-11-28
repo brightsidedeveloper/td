@@ -18,6 +18,6 @@ type GameStore = (GameState | BlankGameState) & {
   updateGrid: (grid: GameState['grid']) => void
 }
 
-type GameState = Endpoints['/api/game/state']
+export type GameState = Endpoints['/api/game/state']
 
 type BlankGameState = { grid: null; playerHealth: null; isRunning: null }

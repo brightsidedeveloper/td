@@ -1,6 +1,8 @@
 package logic
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 )
 
@@ -33,6 +35,10 @@ type Game struct {
 
 type GameMethods interface {
 	State() Game
+	StartGame()
+	StopGame()
+	AddTower(x int, y int)
+	Reset()
 }
 
 type GameLogic struct {
@@ -43,7 +49,50 @@ func (g *GameLogic) State() Game {
 	return g.game
 }
 
+func (g *GameLogic) startGameLoop() {
+	ticker := time.NewTicker(100 * time.Millisecond)
+	defer ticker.Stop()
 
+	for range ticker.C {
+		if !g.game.IsRunning {
+			break
+		}
+
+	}
+}
+
+func (g *GameLogic) updateCell() {
+	for i, row := range g.game.Grid {
+}
+
+func (g *GameLogic) updateEnemy() {
+
+}
+
+func ()
+
+func (g *GameLogic) StartGame() {
+	g.game.IsRunning = true
+	go g.startGameLoop()
+}
+
+func (g *GameLogic) StopGame() {
+	g.game.IsRunning = false
+}
+
+func (g *GameLogic) AddTower(x int, y int) {
+	for i, row := range g.game.Grid {
+		for j, cell := range row {
+			if cell.X == x && cell.Y == y {
+				g.game.Grid[i][j].Tower.IsActive = true
+			}
+		}
+	}
+}
+
+func (g *GameLogic) Reset() {
+	g.game = NewGame()
+}
 
 func NewGame() Game {
 	path := [][]int{
@@ -116,7 +165,7 @@ func NewGame() Game {
 	return Game{
 		Grid:         grid,
 		PlayerHealth: 100,
-		IsRunning:    true,
+		IsRunning:    false,
 	}
 }
 

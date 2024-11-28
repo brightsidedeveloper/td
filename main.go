@@ -57,7 +57,7 @@ func main() {
 
 	// V1 Routes
 	gameRouter.Get("/state", c.State)
-	gameRouter.Get("ws", ws.HandleWebSocket)
+	gameRouter.Get("/ws", ws.HandleWebSocket)
 
 	// Mount the v1Router under /v1
 	router.Mount("/api/game", gameRouter)
