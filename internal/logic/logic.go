@@ -1,20 +1,25 @@
 package logic
 
-type TestLogic interface {
-	Readiness() (int, map[string]string)
-	Error() (int, string)
+type Cannon struct {
+	Key       string `json:"key"`
+	LastFired int64  `json:"lastFired"`
 }
 
-type testLogicImpl struct {}
-
-func NewTestLogic() TestLogic {
-	return testLogicImpl{}
+type Cell struct {
+	Key     string  `json:"key"`
+	X       int     `json:"x"`
+	Y       int     `json:"y"`
+	IsPath  bool    `json:"isPath"`
+	Enemies []Enemy `json:"enemies"`
+	Cannon  Cannon  `json:"cannon"`
 }
 
-func (_ testLogicImpl) Readiness() (int, map[string]string) {
-	return 200, map[string]string{"status": "ok"}
+type Enemy struct {
+	Key string `json:"key"`
 }
 
-func (_ testLogicImpl) Error() (int, string) {
-	return 500, "An error occurred"
+type Logic struct {
+	Grid         [][]Cell `json:"grid"`
+	PlayerHealth int      `json:"playerHealth"`
+	IsRunning    bool     `json:"isRunning"`
 }
