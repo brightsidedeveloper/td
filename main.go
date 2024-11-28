@@ -18,7 +18,6 @@ import (
 
 
 func main() {
-
 	// Load .env file
 	err := godotenv.Load()
 	if err != nil {
@@ -38,14 +37,14 @@ func main() {
 	// Create main router and set up terrible cors
 	router := chi.NewRouter()
 	router.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedOrigins:   []string{"https://towerdefense.bsdserv.com", "http://localhost:8888"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
 		AllowCredentials: false,
 		MaxAge:           300,
 	}))
-	router.Use(middleware.LoggingMiddleware)
+	router.Use(middleware.Logging)
 
 	g := logic.NewGame()
 	gl := logic.NewGameLogic(g)
@@ -55,7 +54,7 @@ func main() {
 
 	gameRouter := chi.NewRouter()
 
-	// V1 Routes
+	// Game Routes
 	gameRouter.Get("/state", c.State)
 	gameRouter.Post("/start", c.StartGame)
 	gameRouter.Post("/addTower", c.AddTower)
@@ -88,14 +87,13 @@ func main() {
 			proxy.ServeHTTP(w, r)
 		})
 
-	// Build
+	// Production
 	} else {
 		staticHandler := http.FileServer(http.Dir(frontendDistPath))
 		router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
 			filePath := frontendDistPath + r.URL.Path
 			_, err := os.Stat(filePath)
 			if os.IsNotExist(err) {
-				// If file does not exist, serve index.html
 				http.ServeFile(w, r, frontendDistPath+"/index.html")
 				return
 			}
