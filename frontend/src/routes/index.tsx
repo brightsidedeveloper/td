@@ -19,8 +19,12 @@ function HomeComponent() {
   if (!grid) return 'Loading...'
 
   return (
-    <div className="p-2">
-      <h3>Welcome Home!</h3>
-    </div>
+    <>
+      {grid.map((row, i) => {
+        row.map((cell, j) => {
+          return
+        })
+      })}
+    </>
   )
 }

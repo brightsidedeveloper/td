@@ -3,8 +3,10 @@ package main
 import (
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
-	controller "td/internal/handlers"
+	"td/internal/controller"
 	"td/internal/logic"
 	"td/internal/middleware"
 	"td/internal/respond"
@@ -47,6 +49,7 @@ func main() {
 
 	g := logic.NewGame()
 	gl := logic.NewGameLogic(g)
+	ws := logic.NewGameWebSocket(&gl)
 	r := respond.NewResponder()
 	c := controller.NewGameController(gl, r)
 
@@ -54,22 +57,49 @@ func main() {
 
 	// V1 Routes
 	gameRouter.Get("/state", c.State)
+	gameRouter.Get("ws", ws.HandleWebSocket)
 
 	// Mount the v1Router under /v1
 	router.Mount("/api/game", gameRouter)
 
+
 	// Serve Frontend
-	staticHandler := http.FileServer(http.Dir(frontendDistPath))
-    router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
-        filePath := frontendDistPath + r.URL.Path
-        _, err := os.Stat(filePath)
-        if os.IsNotExist(err) {
-            // If file does not exist, serve index.html
-            http.ServeFile(w, r, frontendDistPath+"/index.html")
-            return
-        }
-        staticHandler.ServeHTTP(w, r)
-    })
+	devMode := os.Getenv("DEV") == "true"
+
+	// Dev
+	if devMode {
+		viteServerURL := os.Getenv("VITE_SERVER_URL")
+		if viteServerURL == "" {
+			log.Fatal("$VITE_SERVER_URL must be set")
+		}
+		proxyURL, err := url.Parse(viteServerURL)
+		if err != nil {
+			log.Fatalf("Invalid VITE_SERVER_URL: %v", err)
+		}
+		proxy := httputil.NewSingleHostReverseProxy(proxyURL)
+
+		router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+			r.URL.Host = proxyURL.Host
+			r.URL.Scheme = proxyURL.Scheme
+			r.Host = proxyURL.Host
+			proxy.ServeHTTP(w, r)
+		})
+
+	// Build
+	} else {
+		staticHandler := http.FileServer(http.Dir(frontendDistPath))
+		router.Get("/*", func(w http.ResponseWriter, r *http.Request) {
+			filePath := frontendDistPath + r.URL.Path
+			_, err := os.Stat(filePath)
+			if os.IsNotExist(err) {
+				// If file does not exist, serve index.html
+				http.ServeFile(w, r, frontendDistPath+"/index.html")
+				return
+			}
+			staticHandler.ServeHTTP(w, r)
+		})
+	}
+	
 
 	// Start Server
 	log.Printf("Server running on port %s", port)
